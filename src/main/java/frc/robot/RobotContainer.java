@@ -6,13 +6,17 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.CommandExample;
+import frc.robot.commands.CommandRegisterer;
 
 public class RobotContainer {
   public RobotContainer() {
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    CommandRegisterer.register(new CommandExample());
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");

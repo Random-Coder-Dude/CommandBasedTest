@@ -6,9 +6,15 @@ package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix6.SignalLogger;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.CommandRunner;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -16,13 +22,50 @@ public class Robot extends LoggedRobot {
   private final RobotContainer m_robotContainer;
 
   public Robot() {
-    Logger.recordMetadata("ProjectName", BuildInfo.MAVEN_NAME);
+    Logger.recordMetadata("Project Name", BuildInfo.MAVEN_NAME);
+    Logger.recordMetadata("Build Date", BuildInfo.BUILD_DATE);
+    Logger.recordMetadata("Git Hash", BuildInfo.GIT_SHA);
+    Logger.recordMetadata("Git Date", BuildInfo.GIT_DATE);
+    Logger.recordMetadata("Git Branch", BuildInfo.GIT_BRANCH);
+    Logger.recordMetadata("Robot Name", NetworkUtils.getIdentity().name());
+    Logger.recordMetadata("Robot MAC", NetworkUtils.getMACAddress());
+
+    switch (BuildInfo.DIRTY) {
+      case 0:
+        Logger.recordMetadata("Git Dirty", "All Changes Commited");
+        break;
+      case 1:
+        Logger.recordMetadata("Git Dirty", "Uncommited Changes");
+        break;
+      default:
+        Logger.recordMetadata("Git Dirty", "Unknown");
+        break;
+    }
+
+    SignalLogger.enableAutoLogging(false);
+
+    if (Robot.isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter(Constants.LOG_PATH));
+    }
+
+    if (!DriverStation.isFMSAttached()) {
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+
+    Logger.start();
+
     m_robotContainer = new RobotContainer();
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
+    if (Robot.isSimulation()) {
+      DriverStation.silenceJoystickConnectionWarning(true);
+    }
+
+    CommandRunner.run();
   }
 
   @Override
