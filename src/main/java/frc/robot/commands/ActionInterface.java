@@ -31,4 +31,9 @@ public interface ActionInterface<S extends Enum<S>> {
    * @return state transition function
    */
   Function<S, S> getFunction();
+
+  /**
+   * Gets name of the Action
+   */
+  String getName();
 }

@@ -45,8 +45,8 @@ public abstract class CommandBase<S extends Enum<S>> implements CommandInterface
    *
    * @param action state transformation function
    */
-  public void addAction(Function<S, S> action) {
-    actions.add(new Action<>(action));
+  public void addAction(String name, Function<S, S> action) {
+    actions.add(new Action<>(name, action));
   }
 
   /**
@@ -56,7 +56,7 @@ public abstract class CommandBase<S extends Enum<S>> implements CommandInterface
    * @param requirements allowed states
    */
   @SafeVarargs
-  public final void addAction(Function<S, S> action, S... requirements) {
-    actions.add(new Action<>(action, requirements));
+  public final void addAction(String name, Function<S, S> action, S... requirements) {
+    actions.add(new Action<>(name, action, requirements));
   }
 }

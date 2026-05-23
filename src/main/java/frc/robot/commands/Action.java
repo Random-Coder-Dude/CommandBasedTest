@@ -20,12 +20,15 @@ public class Action<S extends Enum<S>> implements ActionInterface<S> {
   /** States in which this action is allowed to run */
   private final Set<S> requirements = new HashSet<>();
 
+  String name;
+
   /**
    * Creates an action with no state restrictions.
    *
    * @param function transformation applied when the action runs
    */
-  public Action(Function<S, S> function) {
+  public Action(String name, Function<S, S> function) {
+    this.name = name;
     this.function = function;
   }
 
@@ -36,7 +39,8 @@ public class Action<S extends Enum<S>> implements ActionInterface<S> {
    * @param requirements allowed states for execution
    */
   @SafeVarargs
-  public Action(Function<S, S> function, S... requirements) {
+  public Action(String name, Function<S, S> function, S... requirements) {
+    this.name = name;
     this.function = function;
 
     for (S requirement : requirements) {
@@ -74,5 +78,10 @@ public class Action<S extends Enum<S>> implements ActionInterface<S> {
   @Override
   public Function<S, S> getFunction() {
     return function;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 }

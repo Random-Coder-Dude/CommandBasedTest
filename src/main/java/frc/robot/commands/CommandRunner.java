@@ -2,6 +2,8 @@ package frc.robot.commands;
 
 import java.util.List;
 
+import org.littletonrobotics.junction.Logger;
+
 /**
  * Executes all registered commands by running their action pipelines.
  */
@@ -26,14 +28,37 @@ public class CommandRunner {
    */
   private static <S extends Enum<S>> void runCommand(CommandInterface<S> command) {
 
-    S state = command.getCurrentState();
+  S state = command.getCurrentState();
 
-    for (Action<S> action : command.getActions()) {
-      if (action.canRun(state)) {
-        state = action.run(state);
-      }
+  int actionsRun = 0;
+  int actionsSkipped = 0;
+
+  Logger.recordOutput("Command/" + command.getName() + "/State", state);
+
+  for (Action<S> action : command.getActions()) {
+
+    if (action.canRun(state)) {
+
+      S oldState = state;
+      state = action.run(state);
+
+      actionsRun++;
+
+      Logger.recordOutput(
+          "Command/" + command.getName() + "/ActionRun",
+          action.getName()
+              + ": " + oldState + " -> " + state
+      );
+
+    } else {
+      actionsSkipped++;
     }
-
-    command.setCurrentState(state);
   }
+
+  command.setCurrentState(state);
+
+  Logger.recordOutput("Command/" + command.getName() + "/State", state);
+  Logger.recordOutput("Command/" + command.getName() + "/ActionsRun", actionsRun);
+  Logger.recordOutput("Command/" + command.getName() + "/ActionsSkipped", actionsSkipped);
+}
 }
