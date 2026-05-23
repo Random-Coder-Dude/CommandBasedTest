@@ -1,19 +1,39 @@
 package frc.robot.commands;
 
 import java.util.List;
-import java.util.function.Function;
 
-public interface CommandInterface<S extends Enum<S>>{
-    /**
-     * Gets the Current State the Command is in
-     */
-    S getCurrentState();
-    /**
-     * Sets the Current State the Command is in
-     */
-    void setCurrentState(S state);
-    /**
-     * Gets the list of Actions the Runner will cycle between
-     */
-    List<Function<S,S>> getActions();
+/**
+ * Core interface for a state-driven command system.
+ *
+ * @param <S> enum type representing state machine states
+ */
+public interface CommandInterface<S extends Enum<S>> {
+
+  /**
+   * Gets the current state of the command.
+   *
+   * @return current state
+   */
+  S getCurrentState();
+
+  /**
+   * Sets the current state of the command.
+   *
+   * @param state new state
+   */
+  void setCurrentState(S state);
+
+  /**
+   * Gets all actions associated with this command.
+   *
+   * @return list of actions
+   */
+  List<Action<S>> getActions();
+
+  /**
+   * Gets the human-readable name of this command.
+   *
+   * @return class name or identifier
+   */
+  String getName();
 }

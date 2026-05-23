@@ -1,27 +1,39 @@
 package frc.robot.commands;
 
 import java.util.List;
-import java.util.function.Function;
 
+/**
+ * Executes all registered commands by running their action pipelines.
+ */
 public class CommandRunner {
 
-    public static void run() {
+  /**
+   * Runs all registered commands once.
+   */
+  public static void run() {
+    List<CommandInterface<?>> commands = CommandRegisterer.getCommands();
 
-        List<CommandInterface<?>> commands = CommandRegisterer.getCommands();
+    for (CommandInterface<?> command : commands) {
+      runCommand(command);
+    }
+  }
 
-        for (CommandInterface<?> command : commands) {
-            runCommand(command);
-        }
+  /**
+   * Executes a single command's action chain.
+   *
+   * @param command command to execute
+   * @param <S> state type
+   */
+  private static <S extends Enum<S>> void runCommand(CommandInterface<S> command) {
+
+    S state = command.getCurrentState();
+
+    for (Action<S> action : command.getActions()) {
+      if (action.canRun(state)) {
+        state = action.run(state);
+      }
     }
 
-    private static <S extends Enum<S>> void runCommand(CommandInterface<S> command) {
-
-        S state = command.getCurrentState();
-
-        for (Function<S, S> action : command.getActions()) {
-            state = action.apply(state);
-        }
-
-        command.setCurrentState(state);
-    }
+    command.setCurrentState(state);
+  }
 }
