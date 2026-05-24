@@ -27,8 +27,6 @@ public class IntakeCommand extends CommandBase<IntakeCommand.State> {
     addAction("IntakeLogic", this::runIntakeLogic, State.INTAKING);
     addAction("HoldLogic", this::runHoldLogic, State.HOLDING);
     addAction("OuttakeLogic", this::runOuttakeLogic, State.OUTTAKING);
-
-    setPriority(1);
   }
 
   /** FSM states for intake control. */

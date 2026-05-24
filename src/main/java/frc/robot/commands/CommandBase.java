@@ -13,9 +13,6 @@ import java.util.function.Function;
  * @param <S> enum type representing command states
  */
 public abstract class CommandBase<S extends Enum<S>> implements CommandInterface<S> {
-  /** Priority of the Command */
-  private int priority = 0;
-
   /** Current state of the command */
   private S state;
 
@@ -47,8 +44,10 @@ public abstract class CommandBase<S extends Enum<S>> implements CommandInterface
    *
    * @param action state transformation function
    */
-  public void addAction(String name, Function<S, S> action) {
-    actions.add(new Action<>(name, action));
+  public Action<S> addAction(String name, Function<S, S> action) {
+    Action<S> createdAction = new Action<>(name, action);
+    actions.add(createdAction);
+    return createdAction;
   }
 
   /**
@@ -58,23 +57,9 @@ public abstract class CommandBase<S extends Enum<S>> implements CommandInterface
    * @param stateRequirements allowed states
    */
   @SafeVarargs
-  public final void addAction(String name, Function<S, S> action, S... stateRequirements) {
-    actions.add(new Action<>(name, action, stateRequirements));
-  }
-
-  /**
-   * Sets priority of the Runner
-   *
-   * @param priority the priority value (bigger value is more important)
-   */
-  @Override
-  public void setPriority(int priority) {
-    this.priority = priority;
-  }
-
-  /** Gets priority of the Runner */
-  @Override
-  public int getPriority() {
-    return priority;
+  public final Action<S> addAction(String name, Function<S, S> action, S... stateRequirements) {
+    Action<S> createdAction = new Action<>(name, action, stateRequirements);
+    actions.add(createdAction);
+    return createdAction;
   }
 }

@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -18,9 +19,14 @@ public class Action<S extends Enum<S>> implements ActionInterface<S> {
   private final Function<S, S> function;
 
   /** States in which this action is allowed to run */
-  private final Set<S> requirements = new HashSet<>();
+  private final Set<S> stateRequirements = new HashSet<>();
 
-  String name;
+  /** Subsystems which the action uses */
+  private final Set<SubsystemBase> subsystemRequirments = new HashSet<>();
+
+  private final String name;
+
+  private int priority = 0;
 
   /**
    * Creates an action with no state restrictions.
@@ -44,7 +50,7 @@ public class Action<S extends Enum<S>> implements ActionInterface<S> {
     this.function = function;
 
     for (S requirement : requirements) {
-      this.requirements.add(requirement);
+      this.stateRequirements.add(requirement);
     }
   }
 
@@ -56,7 +62,7 @@ public class Action<S extends Enum<S>> implements ActionInterface<S> {
    */
   @Override
   public boolean canRun(S state) {
-    return requirements.isEmpty() || requirements.contains(state);
+    return stateRequirements.isEmpty() || stateRequirements.contains(state);
   }
 
   /**
@@ -83,5 +89,25 @@ public class Action<S extends Enum<S>> implements ActionInterface<S> {
   @Override
   public String getName() {
     return name;
+  }
+
+  public Action<S> withPriority(int priority) {
+    this.priority = Math.max(0, priority);
+    return this;
+  }
+
+  public Action<S> withSubsystems(SubsystemBase... requirments) {
+    for (SubsystemBase s : requirments) {
+      this.subsystemRequirments.add(s);
+    }
+    return this;
+  }
+
+  public int getPriority() {
+    return priority;
+  }
+
+  public Set<SubsystemBase> getSubsystemRequirements() {
+    return subsystemRequirments;
   }
 }

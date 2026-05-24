@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -39,8 +38,6 @@ public class Robot extends LoggedRobot {
         Logger.recordMetadata("Git Dirty", "Unknown");
         break;
     }
-
-    SignalLogger.enableAutoLogging(false);
 
     if (Robot.isReal()) {
       Logger.addDataReceiver(new WPILOGWriter(Constants.LOG_PATH));

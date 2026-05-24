@@ -36,14 +36,4 @@ public interface CommandInterface<S extends Enum<S>> {
    * @return class name or identifier
    */
   String getName();
-
-  /**
-   * Sets priority of the Runner
-   *
-   * @param priority the priority value (bigger value is more important)
-   */
-  void setPriority(int priority);
-
-  /** Gets priority of the Runner */
-  int getPriority();
 }

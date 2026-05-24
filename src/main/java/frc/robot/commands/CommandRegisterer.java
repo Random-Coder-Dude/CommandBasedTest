@@ -15,7 +15,6 @@ public class CommandRegisterer {
    */
   public static void register(CommandInterface<?> command) {
     if (command.getCurrentState() == null) throw new RuntimeException("Set Initial State");
-    if (command.getPriority() <= 0) throw new RuntimeException("Set a Priority");
     commands.add(command);
   }
 
