@@ -7,8 +7,8 @@ import java.util.function.Function;
 /**
  * Represents a single state-transforming action in a command state machine.
  *
- * <p>An Action is a function that maps a state {@code S -> S}, optionally constrained
- * to run only when the current state matches a set of required states.
+ * <p>An Action is a function that maps a state {@code S -> S}, optionally constrained to run only
+ * when the current state matches a set of required states.
  *
  * @param <S> Enum type representing the state machine states
  */

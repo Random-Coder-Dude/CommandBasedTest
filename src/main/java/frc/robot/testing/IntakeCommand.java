@@ -17,15 +17,21 @@ public class IntakeCommand extends CommandBase<IntakeCommand.State> {
 
     setCurrentState(State.OFF);
 
-    addAction("InputHandler", this::handleInput, State.OFF, State.INTAKING, State.HOLDING, State.OUTTAKING);
+    addAction(
+        "InputHandler",
+        this::handleInput,
+        State.OFF,
+        State.INTAKING,
+        State.HOLDING,
+        State.OUTTAKING);
     addAction("IntakeLogic", this::runIntakeLogic, State.INTAKING);
     addAction("HoldLogic", this::runHoldLogic, State.HOLDING);
     addAction("OuttakeLogic", this::runOuttakeLogic, State.OUTTAKING);
+
+    setPriority(1);
   }
 
-  /**
-   * FSM states for intake control.
-   */
+  /** FSM states for intake control. */
   public enum State {
     OFF,
     INTAKING,
@@ -33,9 +39,7 @@ public class IntakeCommand extends CommandBase<IntakeCommand.State> {
     OUTTAKING
   }
 
-  /**
-   * Handles controller input and determines state transitions.
-   */
+  /** Handles controller input and determines state transitions. */
   private State handleInput(State state) {
 
     if (controller.getHID().getAButton()) {
@@ -49,9 +53,7 @@ public class IntakeCommand extends CommandBase<IntakeCommand.State> {
     return State.HOLDING;
   }
 
-  /**
-   * Intake running behavior.
-   */
+  /** Intake running behavior. */
   private State runIntakeLogic(State state) {
     System.out.println("[Intake] INTAKING motors forward");
     // intakeMotor.set(1.0);
@@ -59,9 +61,7 @@ public class IntakeCommand extends CommandBase<IntakeCommand.State> {
     return state;
   }
 
-  /**
-   * Holding behavior (stop motors, maintain position).
-   */
+  /** Holding behavior (stop motors, maintain position). */
   private State runHoldLogic(State state) {
     System.out.println("[Intake] HOLDING position");
     // intakeMotor.set(0.1);
@@ -69,9 +69,7 @@ public class IntakeCommand extends CommandBase<IntakeCommand.State> {
     return state;
   }
 
-  /**
-   * Outtake behavior.
-   */
+  /** Outtake behavior. */
   private State runOuttakeLogic(State state) {
     System.out.println("[Intake] OUTTAKING motors reverse");
     // intakeMotor.set(-1.0);

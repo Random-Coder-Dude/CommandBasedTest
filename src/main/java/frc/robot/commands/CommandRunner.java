@@ -1,19 +1,17 @@
 package frc.robot.commands;
 
+import java.util.Comparator;
 import java.util.List;
-
 import org.littletonrobotics.junction.Logger;
 
-/**
- * Executes all registered commands by running their action pipelines.
- */
+/** Executes all registered commands by running their action pipelines. */
 public class CommandRunner {
 
-  /**
-   * Runs all registered commands once.
-   */
+  /** Runs all registered commands once. */
   public static void run() {
     List<CommandInterface<?>> commands = CommandRegisterer.getCommands();
+
+    commands.sort(Comparator.comparingInt((CommandInterface<?> c) -> c.getPriority()).reversed());
 
     for (CommandInterface<?> command : commands) {
       runCommand(command);
@@ -28,37 +26,35 @@ public class CommandRunner {
    */
   private static <S extends Enum<S>> void runCommand(CommandInterface<S> command) {
 
-  S state = command.getCurrentState();
+    S state = command.getCurrentState();
 
-  int actionsRun = 0;
-  int actionsSkipped = 0;
+    int actionsRun = 0;
+    int actionsSkipped = 0;
 
-  Logger.recordOutput("Command/" + command.getName() + "/State", state);
+    Logger.recordOutput("Command/" + command.getName() + "/State", state);
 
-  for (Action<S> action : command.getActions()) {
+    for (Action<S> action : command.getActions()) {
 
-    if (action.canRun(state)) {
+      if (action.canRun(state)) {
 
-      S oldState = state;
-      state = action.run(state);
+        S oldState = state;
+        state = action.run(state);
 
-      actionsRun++;
+        actionsRun++;
 
-      Logger.recordOutput(
-          "Command/" + command.getName() + "/ActionRun",
-          action.getName()
-              + ": " + oldState + " -> " + state
-      );
+        Logger.recordOutput(
+            "Command/" + command.getName() + "/ActionRun",
+            action.getName() + ": " + oldState + " -> " + state);
 
-    } else {
-      actionsSkipped++;
+      } else {
+        actionsSkipped++;
+      }
     }
+
+    command.setCurrentState(state);
+
+    Logger.recordOutput("Command/" + command.getName() + "/State", state);
+    Logger.recordOutput("Command/" + command.getName() + "/ActionsRun", actionsRun);
+    Logger.recordOutput("Command/" + command.getName() + "/ActionsSkipped", actionsSkipped);
   }
-
-  command.setCurrentState(state);
-
-  Logger.recordOutput("Command/" + command.getName() + "/State", state);
-  Logger.recordOutput("Command/" + command.getName() + "/ActionsRun", actionsRun);
-  Logger.recordOutput("Command/" + command.getName() + "/ActionsSkipped", actionsSkipped);
-}
 }

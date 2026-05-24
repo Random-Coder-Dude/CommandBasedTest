@@ -32,8 +32,6 @@ public interface ActionInterface<S extends Enum<S>> {
    */
   Function<S, S> getFunction();
 
-  /**
-   * Gets name of the Action
-   */
+  /** Gets name of the Action */
   String getName();
 }
