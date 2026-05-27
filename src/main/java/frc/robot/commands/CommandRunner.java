@@ -7,10 +7,69 @@ import java.util.List;
 import java.util.Set;
 import org.littletonrobotics.junction.Logger;
 
-/** Executes all registered commands by running their action pipelines. */
+/**
+ * Execution engine for the custom FSM command framework.
+ *
+ * <p>{@code CommandRunner} is a static utility class called once per robot cycle (from {@code
+ * Robot#robotPeriodic()}). It iterates every command registered with {@link CommandRegisterer},
+ * runs each command's eligible action pipeline, and commits the resulting state back to the
+ * command.
+ *
+ * <h2>Per-Command Execution Pipeline</h2>
+ *
+ * <p>For each registered command, the runner performs the following steps:
+ *
+ * <ol>
+ *   <li><b>Snapshot state:</b> Reads {@link CommandInterface#getCurrentState()} as the starting
+ *       state for this cycle.
+ *   <li><b>Sort actions:</b> Sorts the command's action list by priority (descending), then
+ *       alphabetically by name for deterministic tie-breaking.
+ *   <li><b>Evaluate actions:</b> For each action in sorted order:
+ *       <ul>
+ *         <li>Checks {@link Action#canRun(Enum)} — skips with reason {@code STATE_MISMATCH} if the
+ *             current state is not in the action's requirements.
+ *         <li>Checks for subsystem conflicts — skips with reason {@code SUBSYSTEM_CONFLICT} if a
+ *             previously-run action already claimed one of this action's required subsystems.
+ *         <li>If eligible: runs the action via {@link Action#run(Enum)}, threads the returned state
+ *             forward, and claims the action's subsystems for the rest of the cycle.
+ *       </ul>
+ *   <li><b>Commit state:</b> Calls {@link CommandInterface#setCurrentState} with the final state
+ *       produced by the action chain.
+ * </ol>
+ *
+ * <h2>AdvantageKit Telemetry</h2>
+ *
+ * <p>Every step of the pipeline is logged to AdvantageKit under the key prefix {@code
+ * Command/<CommandName>/}. Useful log keys include:
+ *
+ * <ul>
+ *   <li>{@code Command/<name>/State/Before} — state entering the cycle
+ *   <li>{@code Command/<name>/State/After} — state exiting the cycle
+ *   <li>{@code Command/<name>/Action/<actionName>/Decision} — {@code "RUN"} or {@code "SKIP"}
+ *   <li>{@code Command/<name>/Action/<actionName>/SkipReason} — {@code STATE_MISMATCH} or {@code
+ *       SUBSYSTEM_CONFLICT}
+ *   <li>{@code Command/<name>/Metrics/ActionsRun} — count of actions executed this cycle
+ *   <li>{@code Command/<name>/Metrics/ActionsSkipped} — count of actions skipped this cycle
+ * </ul>
+ *
+ * <h2>Calling Convention</h2>
+ *
+ * <p>{@link #run()} is called once per cycle from {@code Robot#robotPeriodic()}, after {@code
+ * CommandScheduler.getInstance().run()}. It must not be called more than once per cycle.
+ *
+ * @see CommandRegisterer
+ * @see CommandInterface
+ * @see Action
+ */
 public class CommandRunner {
 
-  /** Runs all registered commands once. */
+  /**
+   * Executes one cycle of all registered commands.
+   *
+   * <p>Retrieves the current command list from {@link CommandRegisterer#getCommands()} and
+   * delegates to {@link #runCommand(CommandInterface)} for each entry. This method is intended to
+   * be called exactly once per robot cycle from {@code Robot#robotPeriodic()}.
+   */
   public static void run() {
     List<CommandInterface<?>> commands = CommandRegisterer.getCommands();
     for (CommandInterface<?> command : commands) {
@@ -19,10 +78,18 @@ public class CommandRunner {
   }
 
   /**
-   * Executes a single command's action chain.
+   * Executes a single command's full action pipeline for one robot cycle.
    *
-   * @param command command to execute
-   * @param <S> state type
+   * <p>This method handles sorting, eligibility checking, subsystem conflict detection, action
+   * execution, state threading, and AdvantageKit telemetry. See class-level documentation for the
+   * full step-by-step description.
+   *
+   * <p>This method uses a generic type parameter {@code S} to maintain type safety when reading and
+   * writing state, even though commands are stored as raw {@code CommandInterface<?>} in the
+   * registry.
+   *
+   * @param command the command to execute this cycle
+   * @param <S> the enum state type of the command
    */
   private static <S extends Enum<S>> void runCommand(CommandInterface<S> command) {
 
