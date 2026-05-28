@@ -1,6 +1,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -90,10 +92,12 @@ public class CommandRunner {
    *
    * @param command the command to execute this cycle
    * @param <S> the enum state type of the command
+   * @throws RuntimeException if state is read as null
    */
   private static <S extends Enum<S>> void runCommand(CommandInterface<S> command) {
 
     S state = command.getCurrentState();
+    if (state == null) throw new RuntimeException("State Read as Null");
 
     int actionsRun = 0;
     int actionsSkipped = 0;
@@ -102,7 +106,7 @@ public class CommandRunner {
 
     Logger.recordOutput(base + "/State/Before", state);
 
-    List<Action<S>> actionList = command.getActions();
+    List<Action<S>> actionList = new ArrayList<>(command.getActions());
 
     Comparator<Action<S>> comparator =
         Comparator.comparingInt((Action<S> a) -> a.getPriority())
@@ -123,13 +127,10 @@ public class CommandRunner {
 
     Set<SubsystemBase> subsystemsUsed = new HashSet<>();
 
-    int index = 0;
-
     for (Action<S> action : actionList) {
 
       String aBase = base + "/Action/" + action.getName();
 
-      Logger.recordOutput(aBase + "/Index", index);
       Logger.recordOutput(aBase + "/Priority", action.getPriority());
       Logger.recordOutput(aBase + "/State/Input", state);
       Logger.recordOutput(
@@ -181,8 +182,6 @@ public class CommandRunner {
 
         actionsSkipped++;
       }
-
-      index++;
     }
 
     command.setCurrentState(state);

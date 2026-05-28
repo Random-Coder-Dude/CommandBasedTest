@@ -90,7 +90,7 @@ public abstract class CommandBase<S extends Enum<S>> implements CommandInterface
    */
   @Override
   public List<Action<S>> getActions() {
-    return actions;
+    return List.copyOf(actions);
   }
 
   /**

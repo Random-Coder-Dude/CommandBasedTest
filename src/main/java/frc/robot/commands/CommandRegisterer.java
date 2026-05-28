@@ -42,15 +42,20 @@ public class CommandRegisterer {
    * CommandRunner} each robot cycle.
    *
    * <p>The command must have a non-{@code null} current state at the time of registration. If it
-   * does not, a {@link RuntimeException} is thrown with the message {@code "Set Initial State"}.
+   * does not, a {@link RuntimeException} is thrown with the message 
+   * {@code "Set Initial State: "} followed by the command's name.
    * This guard exists to catch commands whose constructors forgot to call {@code
    * setCurrentState(...)}.
    *
    * @param command the command to register; must have an initial state set
+   * @throws RuntimeException if the command is null
    * @throws RuntimeException if {@code command.getCurrentState()} is {@code null}
+   * @throws RuntimeException if same command is registered twice
    */
   public static void register(CommandInterface<?> command) {
-    if (command.getCurrentState() == null) throw new RuntimeException("Set Initial State");
+    if (command == null) throw new RuntimeException("Invalid Command Used");
+    if (command.getCurrentState() == null) throw new RuntimeException("Set Initial State: " + command.getName());
+    if (commands.contains(command)) throw new RuntimeException("Command already registered: " + command.getName());
     commands.add(command);
   }
 

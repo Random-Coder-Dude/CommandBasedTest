@@ -65,7 +65,7 @@ public class Action<S extends Enum<S>> implements ActionInterface<S> {
   private final Set<S> stateRequirements = new HashSet<>();
 
   /** Subsystems this action claims during execution. Used for conflict detection. */
-  private final Set<SubsystemBase> subsystemRequirments = new HashSet<>();
+  private final Set<SubsystemBase> subsystemRequirements = new HashSet<>();
 
   /** Human-readable identifier used in telemetry log keys. */
   private final String name;
@@ -186,12 +186,14 @@ public class Action<S extends Enum<S>> implements ActionInterface<S> {
    * SUBSYSTEM_CONFLICT}. Declaring subsystems is optional but recommended for any action that
    * directly controls hardware.
    *
-   * @param requirments one or more {@link SubsystemBase} instances this action uses
+   * @param requirements one or more {@link SubsystemBase} instances this action uses
    * @return this action (fluent/builder style)
+   * @throws RuntimeException if any element in {@code requirements} is {@code null}
    */
-  public Action<S> withSubsystems(SubsystemBase... requirments) {
-    for (SubsystemBase s : requirments) {
-      this.subsystemRequirments.add(s);
+  public Action<S> withSubsystems(SubsystemBase... requirements) {
+    for (SubsystemBase s : requirements) {
+      if (s == null) throw new RuntimeException("Null subsystem passed to withSubsystems in action: " + name);
+      this.subsystemRequirements.add(s);
     }
     return this;
   }
@@ -211,6 +213,6 @@ public class Action<S extends Enum<S>> implements ActionInterface<S> {
    * @return the set of subsystem requirements; may be empty
    */
   public Set<SubsystemBase> getSubsystemRequirements() {
-    return subsystemRequirments;
+    return Set.copyOf(subsystemRequirements);
   }
 }
