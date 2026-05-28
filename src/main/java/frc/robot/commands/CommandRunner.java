@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -73,6 +71,10 @@ public class CommandRunner {
    * be called exactly once per robot cycle from {@code Robot#robotPeriodic()}.
    */
   public static void run() {
+    for (SubsystemBase subsystem : CommandRegisterer.getSubsystems()) {
+      subsystem.periodic();
+    }
+
     List<CommandInterface<?>> commands = CommandRegisterer.getCommands();
     for (CommandInterface<?> command : commands) {
       runCommand(command);

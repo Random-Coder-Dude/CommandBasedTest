@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;

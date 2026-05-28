@@ -1,8 +1,8 @@
 package frc.robot.testing;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CommandBase;
+import frc.robot.commands.SubsystemBase;
 
 /**
  * Example FSM command demonstrating a two-stage shooter: spin up the flywheel first, then fire.
