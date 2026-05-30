@@ -1,8 +1,8 @@
 package frc.robot.Swerve.Commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants;
 import frc.robot.Commands.CommandBase;
 import frc.robot.Swerve.Subsystem.SwerveSubsystem;
 import java.util.function.BooleanSupplier;
@@ -35,11 +35,23 @@ public class SwerveSysId extends CommandBase<SwerveSysId.State> {
     setCurrentState(State.NONE);
 
     addAction("Input Handler", this::handleInputs).withPriority(1000);
-    addAction("Quasistatic Front", this::handleQuasistaticFront, State.QUASISTATIC_FRONT).withSubsystems(drivetrain).withPriority(10);
-    addAction("Command Handler", this::)
+    addAction("Quasistatic Front", this::handleQuasistaticFront, State.QUASISTATIC_FRONT)
+        .withSubsystems(drivetrain)
+        .withPriority(10);
+    addAction("Quasistatic Back", this::handleQuasistaticBack, State.QUASISTATIC_BACK)
+        .withSubsystems(drivetrain)
+        .withPriority(9);
+    addAction("Dynamic Front", this::handleDynamicFront, State.DYNAMIC_FRONT)
+        .withSubsystems(drivetrain)
+        .withPriority(8);
+    addAction("Dynamic Back", this::handleDynamicBack, State.DYNAMIC_BACK)
+        .withSubsystems(drivetrain)
+        .withPriority(7);
+    addAction("Command Handler", this::handleSwitches);
   }
 
   private State handleInputs(State state) {
+    if (Constants.DEBUG != Constants.DebugState.SYSID) return State.NONE;
     if (runNext.getAsBoolean()) {
       return switch (state) {
         case NONE -> State.QUASISTATIC_FRONT;
@@ -55,7 +67,31 @@ public class SwerveSysId extends CommandBase<SwerveSysId.State> {
 
   private State handleQuasistaticFront(State state) {
     if (!quasistaticFront.isScheduled()) {
-        quasistaticFront.schedule();
+      quasistaticFront.schedule();
+    }
+
+    return state;
+  }
+
+  private State handleQuasistaticBack(State state) {
+    if (!quasistaticBack.isScheduled()) {
+      quasistaticBack.schedule();
+    }
+
+    return state;
+  }
+
+  private State handleDynamicFront(State state) {
+    if (!dynamicFront.isScheduled()) {
+      dynamicFront.schedule();
+    }
+
+    return state;
+  }
+
+  private State handleDynamicBack(State state) {
+    if (!dynamicBack.isScheduled()) {
+      dynamicBack.schedule();
     }
 
     return state;
@@ -63,12 +99,14 @@ public class SwerveSysId extends CommandBase<SwerveSysId.State> {
 
   private State handleSwitches(State state) {
     if (state != lastState) {
-        quasistaticFront.cancel();
-        quasistaticBack.cancel();
-        dynamicFront.cancel();
-        dynamicBack.cancel();
+      quasistaticFront.cancel();
+      quasistaticBack.cancel();
+      dynamicFront.cancel();
+      dynamicBack.cancel();
     }
 
-    
+    lastState = getCurrentState();
+
+    return state;
   }
 }

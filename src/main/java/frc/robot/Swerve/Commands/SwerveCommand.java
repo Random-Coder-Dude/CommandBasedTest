@@ -45,7 +45,8 @@ public class SwerveCommand extends CommandBase<SwerveCommand.State> {
     X, // X Mode (Anti Movement)
     FIELD_RELATIVE, // Standard Driving
     ROBOT_RELATIVE, // Robot Front is Front
-    ALIGNING // Aligning to Target Pose
+    ALIGNING, // Aligning to Target Pose
+    DISABLED //For SysID
   }
 
   public SwerveCommand(
@@ -113,6 +114,7 @@ public class SwerveCommand extends CommandBase<SwerveCommand.State> {
   }
 
   public State handleInputs(State state) {
+    if (Constants.DEBUG == Constants.DebugState.SYSID) return State.DISABLED;
 
     if (align.getAsBoolean()) return State.ALIGNING;
 

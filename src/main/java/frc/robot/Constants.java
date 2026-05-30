@@ -11,6 +11,15 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
+  public enum DebugState {
+    SYSID,
+    NORMAL,
+    VERBOSE,
+    OFF
+  }
+
+  public static DebugState DEBUG = DebugState.NORMAL; 
+
   public static final String LOG_PATH = "";
   // Variables to used by all subsystems.
   public static final double kLoopTime = 0.02;

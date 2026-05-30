@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Commands.CommandRegisterer;
 import frc.robot.Swerve.Commands.SwerveCommand;
+import frc.robot.Swerve.Commands.SwerveSysId;
 import frc.robot.Swerve.Generated.TunerConstants;
 import frc.robot.Swerve.Subsystem.SwerveSubsystem;
 
@@ -29,9 +30,9 @@ public class RobotContainer {
     CommandRegisterer.register(
         new SwerveCommand(
             swerveSubsystem,
-            () -> -driveController.getLeftX(),
+            () -> driveController.getLeftX(),
             () -> -driveController.getLeftY(),
-            () -> -driveController.getRightX(),
+            () -> driveController.getRightX(),
             () -> false,
             () -> false,
             () -> driveController.getHID().getAButton(),
@@ -39,6 +40,9 @@ public class RobotContainer {
             () -> false,
             () -> false,
             () -> new Pose2d()));
+
+    CommandRegisterer.register(
+        new SwerveSysId(swerveSubsystem, () -> opController.getHID().getAButtonPressed()));
 
     swerveSubsystem.register();
   }
