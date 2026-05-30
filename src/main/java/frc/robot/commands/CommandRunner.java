@@ -1,5 +1,6 @@
-package frc.robot.commands;
+package frc.robot.Commands;
 
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -71,10 +72,6 @@ public class CommandRunner {
    * be called exactly once per robot cycle from {@code Robot#robotPeriodic()}.
    */
   public static void run() {
-    for (SubsystemBase subsystem : CommandRegisterer.getSubsystems()) {
-      subsystem.periodic();
-    }
-
     List<CommandInterface<?>> commands = CommandRegisterer.getCommands();
     for (CommandInterface<?> command : commands) {
       runCommand(command);
@@ -113,7 +110,7 @@ public class CommandRunner {
     Comparator<Action<S>> comparator =
         Comparator.comparingInt((Action<S> a) -> a.getPriority())
             .reversed()
-            .thenComparing(Action::getName);
+            .thenComparing(actionList::indexOf);
 
     // Snapshot original order (debug insight)
     Logger.recordOutput(
@@ -127,7 +124,7 @@ public class CommandRunner {
         base + "/Telemetry/ActionOrder/Sorted",
         actionList.stream().map(Action::getName).toArray(String[]::new));
 
-    Set<SubsystemBase> subsystemsUsed = new HashSet<>();
+    Set<Subsystem> subsystemsUsed = new HashSet<>();
 
     for (Action<S> action : actionList) {
 
@@ -138,7 +135,7 @@ public class CommandRunner {
       Logger.recordOutput(
           aBase + "/SubsystemRequirements",
           action.getSubsystemRequirements().stream()
-              .map(SubsystemBase::getName)
+              .map(Subsystem::getName)
               .toArray(String[]::new));
 
       boolean stateAllowed = action.canRun(state);
@@ -157,7 +154,7 @@ public class CommandRunner {
         Logger.recordOutput(
             aBase + "/Subsystems/Claimed",
             action.getSubsystemRequirements().stream()
-                .map(SubsystemBase::getName)
+                .map(Subsystem::getName)
                 .toArray(String[]::new));
 
         subsystemsUsed.addAll(action.getSubsystemRequirements());
@@ -194,6 +191,6 @@ public class CommandRunner {
     Logger.recordOutput(base + "/Metrics/TotalActions", actionList.size());
     Logger.recordOutput(
         base + "/Metrics/SubsystemsLocked",
-        subsystemsUsed.stream().map(SubsystemBase::getName).toArray(String[]::new));
+        subsystemsUsed.stream().map(Subsystem::getName).toArray(String[]::new));
   }
 }

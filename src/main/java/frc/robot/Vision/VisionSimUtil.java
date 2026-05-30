@@ -1,0 +1,37 @@
+package frc.robot.Vision;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import frc.robot.Constants;
+import frc.robot.Robot;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.VisionSystemSim;
+
+public class VisionSimUtil {
+  private static VisionSystemSim visionSim;
+
+  public static void initVisionSim() {
+    if (Robot.isSimulation()) {
+      visionSim = new VisionSystemSim("main");
+      visionSim.addAprilTags(Constants.Vision.kFieldLayout);
+    }
+  }
+
+  public static void addCamera(PhotonCameraSim simCam, Transform3d robotToCamera) {
+    if (Robot.isSimulation() && visionSim != null) {
+      visionSim.addCamera(simCam, robotToCamera);
+    }
+  }
+
+  public static void adjustCamera(PhotonCameraSim simCam, Transform3d robotToCamera) {
+    if (Robot.isSimulation() && visionSim != null) {
+      visionSim.adjustCamera(simCam, robotToCamera);
+    }
+  }
+
+  public static void update(Pose2d pose) {
+    if (Robot.isSimulation() && visionSim != null) {
+      visionSim.update(pose);
+    }
+  }
+}
